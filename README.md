@@ -1,33 +1,104 @@
 # CENTINA OMNI-QUANT v5.0
 
-Agent de trading crypto Binance USDT en mode paper, advisor, semi-auto ou auto.
+[![CI](https://github.com/hardinet/centina-quant/actions/workflows/ci.yml/badge.svg)](https://github.com/hardinet/centina-quant/actions/workflows/ci.yml)
+[![Pages](https://github.com/hardinet/centina-quant/actions/workflows/pages.yml/badge.svg)](https://github.com/hardinet/centina-quant/actions/workflows/pages.yml)
 
-## Portfolio Recruteur
+Agent de trading crypto Binance USDT en mode `PAPER`, `ADVISOR`, `SEMI` ou `AUTO`.
 
 Auteur unique: ardin etienne.
 
-Ce depot est prepare pour etre partage comme projet portfolio:
+> Projet portfolio technique. CENTINA ne constitue pas un conseil financier. Le mode recommande est `PAPER` avec `BINANCE_TESTNET=True`.
 
-- Vitrine statique GitHub Pages: `docs/index.html`
-- Interface web moderne: `dashboard/web/`
-- API dashboard FastAPI: `dashboard/server.py`
-- Tests unitaires: `python -m pytest tests/unit -q`
-- CI GitHub: `.github/workflows/ci.yml`
-- Guide de publication du second depot: `GITHUB_PUBLICATION.md`
+## Apercu
 
-Le projet est une demonstration technique et ne constitue pas un conseil financier.
+CENTINA est une base d'agent quant crypto orientee demonstration produit:
 
-Le projet a maintenant une route officielle simple:
+- agents specialises: Scout, Analyst, Historian, Guardian, Sentinel;
+- scoring multi-strategies avec OCO, Kelly sizing, regime et momentum;
+- risk engine avec circuit breaker, audit log et verrou live;
+- dashboard Streamlit officiel et interface web FastAPI sans build Node;
+- backtests, stress tests, donnees synthetiques et validation statistique;
+- CI GitHub, GitHub Pages, configuration sans secrets et tests unitaires.
 
-- Lanceur complet: `python scripts/start.py --mode PAPER`
-- Agent seul: `python -m src.main --mode PAPER`
-- Dashboard officiel: `streamlit run dashboard/app.py`
-- Dashboard web moderne: `python scripts/start.py --mode PAPER --ui web --port 8600`
-- Tests: `python -m pytest tests/unit -q`
+Site vitrine:
 
-> Prudence: ce projet manipule des signaux de trading. Commencer en `PAPER`, garder `BINANCE_TESTNET=True`, et ne jamais activer le live sans audit.
+```text
+https://hardinet.github.io/centina-quant/
+```
 
-## Structure
+Depot portfolio miroir:
+
+```text
+https://github.com/hardinet/centina-quant-portfolio
+```
+
+## Preuves
+
+Commandes validees localement:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/unit -q
+.\.venv\Scripts\python.exe -m compileall -q src dashboard scripts simulation
+.\.venv\Scripts\python.exe scripts\quick_backtest.py --strategy B --days 30
+```
+
+Etat attendu:
+
+- `138+` tests unitaires passent.
+- Le dashboard FastAPI repond sur `/` et `/api/health`.
+- Le backtest rapide fonctionne avec donnees synthetiques.
+
+## Demarrage Rapide
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+copy .env.example .env
+python scripts/start.py --mode PAPER
+```
+
+Dashboard web moderne:
+
+```powershell
+python scripts/start.py --mode PAPER --ui web --port 8600
+```
+
+Puis ouvrir:
+
+```text
+http://localhost:8600
+```
+
+Agent seul:
+
+```powershell
+python -m src.main --mode PAPER
+```
+
+Tests:
+
+```powershell
+python -m pytest tests/unit -q
+```
+
+## Configuration
+
+Copier `.env.example` vers `.env`, puis remplir seulement les cles utiles:
+
+```env
+BINANCE_TESTNET=True
+BINANCE_TESTNET_API_KEY=
+BINANCE_TESTNET_API_SECRET=
+CAPITAL_USDT=200
+DEFAULT_MODE=PAPER
+ALLOW_LIVE_AUTO=False
+```
+
+Le live reste verrouille par `ALLOW_LIVE_AUTO=False` et par les controles du projet. Ne pas utiliser de vraies cles API dans un depot public.
+
+## Architecture
 
 ```text
 src/
@@ -38,82 +109,23 @@ src/
   database/                CortexDB SQLite
   historical_simulation/   backtests, validators, reports, synthetic data
   interface/               bridge dashboard + terminal helpers
-  learning/                pattern library, backtests, optimizers
+  learning/                pattern library, optimizers, performance tracker
   notifications/           Apprise notifier
   security/                circuit breaker, audit logger, manipulation detector
   voice/                   optional voice interface
 
 dashboard/
   app.py                   dashboard Streamlit officiel
-  server.py                dashboard FastAPI + HTML/CSS/JS optionnel
-  web/                     interface graphique moderne sans build Node
-  web_interface.py         ancien dashboard simple
-  centina_web.py           ancien dashboard pro
+  server.py                API FastAPI + interface web statique
+  web/                     HTML/CSS/JS sans build Node
 
-config/
-  centina_config.yaml.example
-  historical/
-  strategies/
+docs/
+  index.html               vitrine GitHub Pages
 
 scripts/
   start.py                 lance agent + dashboard
-  quick_backtest.py
+  quick_backtest.py        backtest rapide synthetique
   run_historical_simulation.py
-```
-
-## Installation
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
-
-Sur PowerShell, si `python` pointe vers le Microsoft Store ou refuse de s'executer, utiliser le chemin complet:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-## Configuration
-
-Copier `.env.example` vers `.env`, puis remplir les cles utiles:
-
-```env
-BINANCE_TESTNET=True
-BINANCE_TESTNET_API_KEY=...
-BINANCE_TESTNET_API_SECRET=...
-CAPITAL_USDT=200
-DEFAULT_MODE=PAPER
-ALLOW_LIVE_AUTO=False
-```
-
-Le fichier `config/centina_config.yaml.example` documente la structure applicative, mais le runtime actuel lit surtout les variables `.env`.
-
-## Lancement
-
-Lancement recommande:
-
-```bash
-python scripts/start.py --mode PAPER
-```
-
-Cela lance:
-
-- le dashboard sur `http://localhost:8501`
-- l'agent dans le terminal courant
-- les logs dashboard dans `logs/streamlit.log`
-
-Autres commandes:
-
-```bash
-python -m src.main --mode ADVISOR
-python -m src.main --mode SEMI
-python -m src.main --mode AUTO
-streamlit run dashboard/app.py --server.port 8501
-python scripts/start.py --mode PAPER --ui web --port 8600
-python scripts/quick_backtest.py --strategy B --days 365
 ```
 
 ## Modes
@@ -123,9 +135,7 @@ python scripts/quick_backtest.py --strategy B --days 365
 | `PAPER` | Simulation, aucun ordre reel |
 | `ADVISOR` | Propose les trades et attend `GO` / `PASSE` |
 | `SEMI` | Execute seulement les signaux PRIME |
-| `AUTO` | Execute automatiquement les signaux valides |
-
-Le live reste verrouille par le paper gate 7 jours et par `ALLOW_LIVE_AUTO`.
+| `AUTO` | Execute automatiquement les signaux valides si les verrous le permettent |
 
 ## Commandes Interactives
 
@@ -159,6 +169,12 @@ Le live reste verrouille par le paper gate 7 jours et par `ALLOW_LIVE_AUTO`.
 
 Les definitions runtime sont dans `src/brain/strategy_selector.py`.
 
-## Etat du Rangement
+## Publication
 
-Cette version privilegie `dashboard/app.py` et `scripts/start.py`. Une interface web plus moderne existe aussi via `dashboard/server.py` et `dashboard/web/`; elle parle au meme agent par `data/bridge_state.json`, `data/cortex.db` et `data/cmd_queue.json`.
+Le site statique est dans `docs/index.html` et peut etre publie avec GitHub Pages via le workflow:
+
+```text
+.github/workflows/pages.yml
+```
+
+Dans GitHub, configurer `Settings > Pages > GitHub Actions`, puis lancer `Deploy GitHub Pages`.
