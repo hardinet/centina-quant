@@ -21,6 +21,7 @@
         --green: #23c483;
         --red: #f05261;
         --blue: #57a6ff;
+        --cyan: #2dd4bf;
       }
       * { box-sizing: border-box; }
       body {
@@ -33,9 +34,10 @@
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
       a { color: inherit; }
+      html { scroll-behavior: smooth; }
       .wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
       header {
-        min-height: 92vh;
+        min-height: 88vh;
         display: grid;
         align-items: center;
         padding: 28px 0 44px;
@@ -63,12 +65,13 @@
         border-radius: 8px; background: linear-gradient(135deg, var(--gold), #ffe38a);
         color: #0b0e11;
       }
-      .navlinks { display: flex; gap: 10px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
+      .navlinks { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
+      .navlinks a { text-underline-offset: 4px; }
       .hero {
         padding-top: 82px;
         display: grid;
-        grid-template-columns: minmax(0, .95fr) minmax(420px, 1.05fr);
-        gap: 34px;
+        grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr);
+        gap: 42px;
         align-items: center;
       }
       .eyebrow {
@@ -81,8 +84,17 @@
         font-size: 13px;
         font-weight: 800;
       }
-      h1 { margin: 18px 0 14px; font-size: clamp(42px, 7vw, 78px); line-height: .94; letter-spacing: 0; }
+      h1 { margin: 18px 0 14px; font-size: clamp(42px, 6.6vw, 74px); line-height: .94; letter-spacing: 0; }
       .lead { color: #c9d5e3; font-size: 18px; line-height: 1.7; max-width: 680px; }
+      .hero-points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+      .hero-point {
+        border: 1px solid rgba(255,255,255,.08);
+        background: rgba(17,24,33,.62);
+        border-radius: 7px;
+        padding: 12px;
+      }
+      .hero-point strong { display: block; font-size: 20px; }
+      .hero-point span { color: var(--muted); font-size: 12px; text-transform: uppercase; }
       .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
       .btn {
         display: inline-flex; align-items: center; justify-content: center;
@@ -91,6 +103,7 @@
         border: 1px solid var(--line); background: var(--panel2);
       }
       .btn.primary { background: var(--gold); color: #0b0e11; border-color: var(--gold); }
+      .btn:hover { border-color: var(--gold); transform: translateY(-1px); }
       .terminal {
         border: 1px solid var(--line);
         background: rgba(17, 24, 33, .92);
@@ -110,6 +123,13 @@
       }
       .card span, .panel span { display:block; color: var(--muted); font-size: 12px; text-transform: uppercase; }
       .card strong { display:block; margin-top: 7px; font-size: 22px; }
+      .dashboard-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 12px; }
+      .chart-card { min-height: 292px; }
+      .chart-card svg { width: 100%; height: 220px; display: block; margin-top: 12px; }
+      .event-mini { display: grid; gap: 8px; margin-top: 12px; }
+      .event-mini div { border-left: 3px solid var(--gold); background: rgba(13,20,29,.9); border-radius: 5px; padding: 10px; color: #c9d5e3; font-size: 13px; }
+      .event-mini div:nth-child(2) { border-left-color: var(--green); }
+      .event-mini div:nth-child(3) { border-left-color: var(--blue); }
       .grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:14px; }
       section { padding: 56px 0; border-top: 1px solid rgba(255,255,255,.06); }
       h2 { margin:0 0 16px; font-size: clamp(26px, 4vw, 42px); }
@@ -119,10 +139,16 @@
       .bar.loss { background:linear-gradient(180deg,var(--red),rgba(240,82,97,.4)); }
       .stack { display:grid; gap:12px; }
       .pill { display:inline-flex; padding:5px 9px; border-radius:999px; background:rgba(87,166,255,.12); color:var(--blue); font-size:12px; font-weight:800; }
+      .wide { grid-column: span 2; }
+      .checklist { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+      .checklist li { display: flex; gap: 10px; color: #c9d5e3; line-height: 1.55; }
+      .checklist li::before { content: "OK"; color: #07100d; background: var(--green); border-radius: 4px; height: 21px; min-width: 28px; display: grid; place-items: center; font-size: 11px; font-weight: 900; margin-top: 2px; }
+      pre { overflow: auto; }
       footer { padding: 32px 0 48px; color: var(--muted); }
       @media (max-width: 920px) {
-        .hero, .grid { grid-template-columns: 1fr; }
-        .metrics { grid-template-columns: 1fr; }
+        .hero, .grid, .dashboard-grid { grid-template-columns: 1fr; }
+        .metrics, .hero-points { grid-template-columns: 1fr; }
+        .wide { grid-column: auto; }
         nav { position: static; }
         header { min-height: auto; }
         .hero { padding-top: 32px; }
@@ -136,6 +162,7 @@
         <div class="navlinks">
           <a href="#stack">Stack</a>
           <a href="#proof">Preuves</a>
+          <a href="#architecture">Architecture</a>
           <a href="#run">Lancer</a>
         </div>
       </div>
@@ -151,8 +178,13 @@
             gestion du risque, backtests, dashboard FastAPI et interface Streamlit.
             Cette page statique est la vitrine recruteur; le produit complet se lance en local.
           </p>
+          <div class="hero-points">
+            <div class="hero-point"><span>Tests</span><strong>138/138</strong></div>
+            <div class="hero-point"><span>Modes</span><strong>4</strong></div>
+            <div class="hero-point"><span>Strategies</span><strong>5</strong></div>
+          </div>
           <div class="actions">
-            <a class="btn primary" href="../README.md">Lire le README</a>
+            <a class="btn primary" href="https://github.com/hardinet/centina-quant-portfolio#readme" target="_blank" rel="noreferrer">Lire le README</a>
             <a class="btn" href="https://github.com/hardinet/centina-quant-portfolio" target="_blank" rel="noreferrer">Voir le depot</a>
           </div>
         </div>
@@ -165,13 +197,29 @@
               <div class="card"><span>PnL jour</span><strong style="color:var(--green)">+3.42 USDT</strong></div>
               <div class="card"><span>Circuit breaker</span><strong>NORMAL</strong></div>
             </div>
-            <div class="panel">
-              <span>Equity curve demo</span>
-              <div class="bars">
-                <i class="bar" style="height:40%"></i><i class="bar" style="height:52%"></i>
-                <i class="bar loss" style="height:28%"></i><i class="bar" style="height:66%"></i>
-                <i class="bar" style="height:78%"></i><i class="bar loss" style="height:34%"></i>
-                <i class="bar" style="height:88%"></i><i class="bar" style="height:72%"></i>
+            <div class="dashboard-grid">
+              <div class="panel chart-card">
+                <span>Equity curve demo</span>
+                <svg viewBox="0 0 520 220" role="img" aria-label="Courbe de capital demo">
+                  <defs>
+                    <linearGradient id="fill" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#23c483" stop-opacity=".32" />
+                      <stop offset="100%" stop-color="#23c483" stop-opacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M18 184 L82 154 L145 166 L210 118 L273 127 L335 84 L400 97 L502 48" fill="none" stroke="#23c483" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M18 184 L82 154 L145 166 L210 118 L273 127 L335 84 L400 97 L502 48 L502 204 L18 204 Z" fill="url(#fill)" />
+                  <path d="M18 184 H502 M18 138 H502 M18 92 H502 M18 46 H502" stroke="#283648" stroke-width="1" />
+                  <circle cx="502" cy="48" r="7" fill="#f0b90b" />
+                </svg>
+              </div>
+              <div class="panel">
+                <span>Flux agent</span>
+                <div class="event-mini">
+                  <div>Signal BTCUSDT score 84.7</div>
+                  <div>Risk gate: PAPER autorise</div>
+                  <div>Backtest rapide disponible</div>
+                </div>
               </div>
             </div>
           </div>
@@ -199,6 +247,16 @@
               <h3>Dashboard utilisable</h3>
               <p class="muted">FastAPI, UI web sans build Node, Streamlit officiel, bridge JSON et lecture SQLite pour le suivi live.</p>
             </article>
+            <article class="panel stack wide">
+              <span class="pill">Engineering</span>
+              <h3>Codebase lisible pour revue</h3>
+              <p class="muted">Modules separes par responsabilite: agents, brain, connectors, security, learning, dashboard et simulation historique.</p>
+            </article>
+            <article class="panel stack">
+              <span class="pill">Recruiter-ready</span>
+              <h3>Publication propre</h3>
+              <p class="muted">Depot public, GitHub Pages, workflows CI, guide de lancement et configuration sans secrets.</p>
+            </article>
           </div>
         </div>
       </section>
@@ -210,6 +268,26 @@
             <article class="card"><span>Tests unitaires</span><strong>138 passes</strong></article>
             <article class="card"><span>Backtest rapide</span><strong>OK</strong></article>
             <article class="card"><span>CI GitHub</span><strong>Preparee</strong></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="architecture">
+        <div class="wrap">
+          <h2>Pourquoi c'est interessant</h2>
+          <div class="grid">
+            <article class="panel wide">
+              <ul class="checklist">
+                <li>Architecture orientee agents: Scout, Analyst, Historian, Guardian et Sentinel.</li>
+                <li>Pipeline de decision: detection, scoring, risk gate, simulation et execution controlee.</li>
+                <li>Interface exploitable par un recruteur sans cle API via GitHub Pages, plus dashboard local complet.</li>
+                <li>Mode live verrouille par defaut: le projet privilegie la demonstration technique et la securite.</li>
+              </ul>
+            </article>
+            <article class="panel">
+              <span>Stack principale</span>
+              <p class="muted">Python, FastAPI, Streamlit, SQLite, pytest, GitHub Actions, Binance testnet.</p>
+            </article>
           </div>
         </div>
       </section>
