@@ -1,0 +1,46 @@
+# CENTINA OMNI-QUANT v5.0 - application config example
+#
+# The current runtime primarily reads .env values. This YAML file documents
+# the intended structure for operators and future config loading.
+
+runtime:
+  default_mode: PAPER
+  capital_usdt: 200
+  allow_live_auto: false
+  paper_days_required: 7
+
+binance:
+  testnet: true
+  api_key_env: BINANCE_TESTNET_API_KEY
+  api_secret_env: BINANCE_TESTNET_API_SECRET
+  live_api_key_env: BINANCE_API_KEY
+  live_api_secret_env: BINANCE_API_SECRET
+
+risk:
+  max_open_positions: 3
+  daily_loss_limit_pct: 0.06
+  max_position_pct:
+    zero_open_positions: 0.05
+    one_open_position: 0.03
+    two_or_more_open_positions: 0.02
+    override: 0.01
+  circuit_breaker: true
+
+scoring:
+  min_score: 78
+  prime_score: 93
+  vetoes:
+    - pump_detected
+    - wash_trading
+    - btc_crash
+    - circuit_breaker_l3
+    - raw_score_below_40
+
+dashboard:
+  app: dashboard/app.py
+  port: 8501
+  bridge_file: data/bridge_state.json
+  command_queue: data/cmd_queue.json
+
+strategies:
+  defaults_file: config/strategies/defaults.yaml

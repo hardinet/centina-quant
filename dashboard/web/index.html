@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CENTINA v5.0</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">C</span>
+          <div>
+            <strong>CENTINA</strong>
+            <small>OMNI-QUANT v5.0</small>
+          </div>
+        </div>
+
+        <div id="network-badge" class="network-badge testnet">TESTNET</div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-page="live">Live</button>
+          <button class="nav-item" data-page="opportunities">Opportunites</button>
+          <button class="nav-item" data-page="trades">Trades</button>
+          <button class="nav-item" data-page="performance">Performance</button>
+          <button class="nav-item" data-page="learning">Apprentissage</button>
+          <button class="nav-item" data-page="simulation">Simulation</button>
+          <button class="nav-item" data-page="council">Conseil LLM</button>
+          <button class="nav-item" data-page="macro">Intelligence Macro</button>
+        </nav>
+
+        <section class="control-panel">
+          <label>Mode agent</label>
+          <div class="segmented">
+            <button data-command="SET_MODE" data-value="PAPER">Paper</button>
+            <button data-command="SET_MODE" data-value="ADVISOR">Advisor</button>
+            <button data-command="SET_MODE" data-value="AUTO">Auto</button>
+          </div>
+          <button class="danger" data-command="CLOSE_ALL">Fermer tout</button>
+          <div class="split">
+            <button data-command="PAUSE">Pause</button>
+            <button data-command="RESUME">Reprise</button>
+          </div>
+        </section>
+
+        <section class="status-card">
+          <span>Etat API</span>
+          <strong id="health">...</strong>
+          <span id="binance-status" class="binance-off">Binance: -</span>
+        </section>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <h1 id="page-title">Live Dashboard</h1>
+            <p id="subtitle">Etat temps reel de l'agent et du bridge.</p>
+          </div>
+          <div class="topbar-actions">
+            <button data-command="FORCE_SCAN">Forcer scan</button>
+            <button data-command="RUN_BACKTEST" data-days="30">Backtest 30j</button>
+            <button data-command="RUN_SIMULATION">Simulation</button>
+          </div>
+        </header>
+
+        <section class="metrics-grid">
+          <article class="metric">
+            <span>Solde Binance USDT</span>
+            <strong id="metric-binance">- USDT</strong>
+          </article>
+          <article class="metric">
+            <span>Capital agent</span>
+            <strong id="metric-capital">0 USDT</strong>
+          </article>
+          <article class="metric">
+            <span>PnL jour</span>
+            <strong id="metric-pnl">0 USDT</strong>
+          </article>
+          <article class="metric">
+            <span>Positions</span>
+            <strong id="metric-positions">0</strong>
+          </article>
+          <article class="metric">
+            <span>Circuit Breaker</span>
+            <strong id="metric-cb">NORMAL</strong>
+          </article>
+        </section>
+
+        <!-- ── LIVE ── -->
+        <section class="page active" id="page-live">
+          <div class="two-col">
+            <article class="panel">
+              <div class="panel-head">
+                <h2>Objectif quotidien</h2>
+                <span id="target-label">0 / 30 USDT</span>
+              </div>
+              <div class="progress"><span id="target-progress"></span></div>
+              <div class="chart" id="equity-chart"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head">
+                <h2>Evenements</h2>
+                <span id="clock">--:--:--</span>
+              </div>
+              <div class="event-list" id="events"></div>
+            </article>
+          </div>
+          <article class="panel">
+            <div class="panel-head"><h2>Positions ouvertes (agent)</h2></div>
+            <div class="table-wrap"><table id="positions-table"></table></div>
+          </article>
+          <article class="panel">
+            <div class="panel-head">
+              <h2>Ordres ouverts Binance</h2>
+              <button id="refresh-orders" style="font-size:12px;padding:5px 10px;">Actualiser</button>
+            </div>
+            <div class="table-wrap"><table id="orders-table"></table></div>
+          </article>
+          <article class="panel">
+            <div class="panel-head"><h2>Actifs Binance</h2></div>
+            <div id="assets-grid" class="mini-grid"></div>
+          </article>
+        </section>
+
+        <!-- ── OPPORTUNITES ── -->
+        <section class="page" id="page-opportunities">
+          <article class="panel">
+            <div class="panel-head">
+              <h2>Top opportunites</h2>
+              <div class="filters">
+                <select id="strategy-filter">
+                  <option value="ALL">Toutes</option>
+                  <option>A</option><option>B</option><option>C</option>
+                  <option>D</option><option>E</option>
+                </select>
+                <input id="score-filter" type="range" min="60" max="100" value="78" />
+                <span id="score-filter-label">Score >= 78</span>
+              </div>
+            </div>
+            <div class="table-wrap"><table id="opps-table"></table></div>
+          </article>
+        </section>
+
+        <!-- ── TRADES ── -->
+        <section class="page" id="page-trades">
+          <article class="panel">
+            <div class="panel-head"><h2>Historique trades</h2></div>
+            <div class="table-wrap"><table id="trades-table"></table></div>
+          </article>
+        </section>
+
+        <!-- ── PERFORMANCE ── -->
+        <section class="page" id="page-performance">
+          <div class="two-col">
+            <article class="panel">
+              <div class="panel-head"><h2>Performance</h2></div>
+              <div class="mini-grid" id="performance-cards"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head"><h2>PnL quotidien</h2></div>
+              <div class="bar-chart" id="daily-chart"></div>
+            </article>
+          </div>
+        </section>
+
+        <!-- ── APPRENTISSAGE ── -->
+        <section class="page" id="page-learning">
+          <article class="panel">
+            <div class="panel-head"><h2>Apprentissage</h2></div>
+            <div id="learning-summary" class="empty">En attente de donnees.</div>
+          </article>
+        </section>
+
+        <!-- ── SIMULATION ── -->
+        <section class="page" id="page-simulation">
+          <article class="panel">
+            <div class="panel-head"><h2>Simulations historiques</h2></div>
+            <div class="table-wrap"><table id="sim-table"></table></div>
+          </article>
+        </section>
+
+        <!-- ── CONSEIL LLM ── -->
+        <section class="page" id="page-council">
+          <article class="panel">
+            <div class="panel-head">
+              <h2>Verdicts LLM par opportunite</h2>
+              <span id="council-meta" class="muted"></span>
+            </div>
+            <div class="table-wrap"><table id="council-table"></table></div>
+          </article>
+          <article class="panel">
+            <div class="panel-head"><h2>Dernier avis detaille</h2></div>
+            <div id="council-detail" class="council-detail empty">Selectionnez une ligne pour voir l'avis complet.</div>
+          </article>
+        </section>
+
+        <!-- ── INTELLIGENCE MACRO ── -->
+        <section class="page" id="page-macro">
+          <div class="mini-grid" id="macro-cards"></div>
+          <div class="two-col">
+            <article class="panel">
+              <div class="panel-head"><h2>Cross-Asset</h2></div>
+              <div class="table-wrap"><table id="macro-table"></table></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head"><h2>Fear &amp; Greed / Social</h2></div>
+              <div id="fng-display" class="fng-display"></div>
+            </article>
+          </div>
+        </section>
+
+      </main>
+    </div>
+    <script src="/assets/app.js"></script>
+  </body>
+</html>

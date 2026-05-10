@@ -1,0 +1,72 @@
+## CENTINA v5.0 — Historical Data Sources Configuration
+
+crypto:
+  primary: binance
+  fallbacks:
+    - yfinance
+    - coingecko
+  cache_db: data/historical_cache.db
+  cache_ttl_days: 7
+  default_timeframe: "1d"
+  max_years: 20
+  symbols:
+    - BTCUSDT
+    - ETHUSDT
+    - BNBUSDT
+    - SOLUSDT
+    - ADAUSDT
+    - XRPUSDT
+    - DOGEUSDT
+    - AVAXUSDT
+    - MATICUSDT
+    - LINKUSDT
+    - DOTUSDT
+    - UNIUSDT
+    - ATOMUSDT
+    - LTCUSDT
+    - ETCUSDT
+
+macro:
+  provider: fred
+  api_key_env: FRED_API_KEY
+  series:
+    DFF:    "Fed Funds Rate"
+    CPIAUCSL: "CPI (YoY)"
+    UNRATE: "Unemployment Rate"
+    T10Y2Y: "10Y-2Y Spread"
+    DGS10:  "10Y Treasury Yield"
+    DTWEXBGS: "USD Index (broad)"
+    GOLDAMGBD228NLBM: "Gold Price (USD)"
+  update_frequency: daily
+  ffill_limit: 7       # forward-fill up to 7 days for weekend gaps
+
+onchain:
+  provider: glassnode
+  api_key_env: GLASSNODE_API_KEY
+  resolution: "24h"
+  metrics:
+    - active_addresses
+    - hash_rate
+    - mvrv_ratio
+    - nvt_ratio
+    - sopr
+    - exchange_net_flow
+    - realized_cap_usd
+
+sentiment:
+  fear_greed:
+    url: "https://api.alternative.me/fng/"
+    update_frequency: daily
+  google_trends:
+    keywords:
+      - "bitcoin"
+      - "crypto"
+      - "ethereum"
+      - "buy bitcoin"
+    geo: ""           # global
+    timeframe: "today 5-y"
+  funding_rates:
+    source: binance
+    symbols:
+      - BTCUSDT
+      - ETHUSDT

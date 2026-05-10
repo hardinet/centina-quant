@@ -1,0 +1,47 @@
+# Strategy defaults mirrored from src/brain/strategy_selector.py.
+# Runtime source of truth is still the Python module.
+
+A:
+  name: Breakout Momentum
+  tp1_pct: 2.5
+  tp2_pct: 5.5
+  tp3_trail_atr: 2.0
+  sl_atr_mult: 1.2
+  max_hours: 3.0
+  description: Breakout resistance plus volume expansion.
+
+B:
+  name: Golden Cross
+  tp1_pct: 2.0
+  tp2_pct: 5.2
+  tp3_trail_atr: 1.5
+  sl_atr_mult: 1.0
+  max_hours: 5.0
+  description: EMA7 / EMA25 trend continuation.
+
+C:
+  name: News Momentum
+  tp1_pct: 3.0
+  tp2_pct: 6.0
+  tp3_trail_atr: 1.5
+  sl_atr_mult: 0.8
+  max_hours: 2.0
+  description: Bullish news plus RSI momentum.
+
+D:
+  name: Volume Profile
+  tp1_pct: 1.8
+  tp2_pct: 4.0
+  tp3_trail_atr: 1.0
+  sl_atr_mult: 0.6
+  max_hours: 2.0
+  description: Ranging market scalp.
+
+E:
+  name: Liquidity Reversal
+  tp1_pct: 2.0
+  tp2_pct: 5.0
+  tp3_trail_atr: 1.5
+  sl_atr_mult: 1.0
+  max_hours: 4.0
+  description: Reversal after wick or liquidity hunt.

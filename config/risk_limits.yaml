@@ -1,0 +1,25 @@
+circuit_breaker:
+  alert_pct:      2.0    # % daily drawdown → alert, halve size
+  restricted_pct: 3.5   # % → no new positions
+  stopped_pct:    5.0    # % → halt all trading today
+  terminated_pct: 15.0  # % → definitive stop, manual reset required
+  state_file: "data/circuit_breaker_state.json"
+
+kelly:
+  fraction:         0.125   # 1/8 Kelly
+  max_position_pct: 0.05    # hard cap: 5% of capital per trade
+  base_win_rate:    0.55    # baseline assumption
+
+position:
+  max_concurrent_trades:  5
+  max_exposure_pct:       0.25   # max 25% of capital deployed at once
+  min_rr_ratio:           1.5    # minimum reward/risk for entry
+
+capital:
+  min_usdt_balance: 50     # refuse to trade below this balance
+  reserve_pct:      0.10   # keep 10% in reserve, never deploy
+
+order:
+  limit_order_offset_pct: 0.001   # place limit 0.1% below ask
+  sl_limit_buffer_pct:    0.001   # SL limit 0.1% below stop price
+  max_slippage_pct:       0.005   # abort if fill price deviates >0.5%

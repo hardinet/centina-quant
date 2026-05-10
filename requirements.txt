@@ -1,0 +1,70 @@
+# ── Core ──────────────────────────────────────────────────────────────
+python-dotenv==1.0.1
+numpy==1.26.4
+pandas==2.2.2
+pandas-ta==0.3.14b0
+scikit-learn==1.4.2
+scipy>=1.13.0
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+
+# ── Binance ───────────────────────────────────────────────────────────
+python-binance==1.0.19
+
+# ── Backtesting / analysis ────────────────────────────────────────────
+vectorbt==0.26.2
+yfinance>=0.2.40
+pyfolio-reloaded>=0.9.5
+quantstats>=0.0.62
+arch>=6.3.0                      # GARCH models
+
+# ── Statistical / Econometrics ────────────────────────────────────────
+statsmodels>=0.14.2
+hmmlearn>=0.3.2                  # HMM regime detection
+
+# ── API / Web ─────────────────────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+streamlit==1.35.0
+streamlit-autorefresh>=1.0.1
+requests>=2.31.0
+aiohttp==3.9.5
+beautifulsoup4>=4.12.3
+pytrends>=4.9.2                  # Google Trends
+
+# ── Terminal UI ───────────────────────────────────────────────────────
+rich==13.7.1
+
+# ── Notifications ─────────────────────────────────────────────────────
+apprise==1.8.0
+openai>=1.30.0                   # Sentinel LLM scoring
+
+# ── Optimisation ──────────────────────────────────────────────────────
+optuna==3.6.1
+
+# ── Async / Utils ─────────────────────────────────────────────────────
+pyyaml==6.0.1
+redis==5.0.5
+
+# ── Data reporting ────────────────────────────────────────────────────
+fpdf2>=2.7.9                     # PDF reports
+plotly>=5.22.0                   # Interactive charts
+
+# ── Voice (optional — install manually if needed) ─────────────────────
+# speechrecognition>=3.10.4
+# pyttsx3>=2.90
+# openai-whisper>=20231117
+# sounddevice>=0.4.6
+# pygame>=2.5.2
+# elevenlabs>=1.1.2
+
+# ── Crypto data (optional) ────────────────────────────────────────────
+# pycoingecko>=3.1.0
+
+# ── Dev / Testing ─────────────────────────────────────────────────────
+pytest>=8.2.0
+pytest-asyncio>=0.23.7
+pytest-timeout>=2.3.1
+black>=24.4.2
+isort>=5.13.2
+flake8>=7.0.0

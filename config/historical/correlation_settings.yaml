@@ -1,0 +1,80 @@
+## CENTINA v5.0 — Correlation & Regime Analysis Configuration
+
+correlations:
+  default_method: pearson         # pearson | spearman | kendall | cosine
+  rolling_windows: [7, 14, 30, 90, 180, 365]
+  min_observations: 20
+
+  variables:
+    macro:
+      - DFF                       # Fed Funds Rate
+      - CPIAUCSL                  # CPI
+      - T10Y2Y                    # Yield curve spread
+      - DTWEXBGS                  # Dollar index
+      - GOLDAMGBD228NLBM          # Gold
+    onchain:
+      - active_addresses
+      - mvrv_ratio
+      - nvt_ratio
+      - sopr
+      - exchange_net_flow
+    sentiment:
+      - fear_greed_index
+      - google_trends_bitcoin
+      - funding_rate_btc
+
+  granger_causality:
+    max_lag: 10
+    significance: 0.05
+
+  cointegration:
+    method: johansen              # johansen | adf
+    significance: 0.05
+
+event_study:
+  estimation_window:
+    start: -60                    # days before event
+    end:   -10
+  event_window:
+    start: -5
+    end:   +20
+  model: market_model             # market_model | mean_adjusted
+
+  events:
+    halvings:
+      - "2016-07-09"
+      - "2020-05-11"
+      - "2024-04-19"
+    crashes:
+      - date: "2020-03-12"
+        name: "COVID Crash"
+      - date: "2022-05-09"
+        name: "Terra/Luna"
+      - date: "2022-11-08"
+        name: "FTX Collapse"
+    regulatory:
+      - date: "2021-09-24"
+        name: "China Ban 2021"
+      - date: "2023-06-05"
+        name: "SEC vs Binance"
+
+regimes:
+  method: kmeans                  # kmeans | hmm
+  n_regimes: 4
+  features:
+    - return
+    - volatility_20d
+    - momentum_10d
+  labels:
+    0: "Bear"
+    1: "Accumulation"
+    2: "Bull"
+    3: "Distribution"
+
+  transition_matrix:
+    update_frequency: weekly
+
+leading_indicators:
+  max_lag: 30                     # days
+  min_correlation: 0.3
+  min_significance: 0.05

@@ -1,0 +1,52 @@
+ema:
+  periods: [7, 25, 99, 200]
+  weights:            # contribution to EMA sub-score
+    alignment_steps: 20   # points per aligned step (5 steps max = 100)
+
+rsi:
+  period: 14
+  sweet_low: 45
+  sweet_high: 65
+  oversold: 30
+  overbought: 70
+
+macd:
+  fast: 12
+  slow: 26
+  signal: 9
+
+atr:
+  period: 14
+
+scoring:
+  ema_weight:  0.45
+  rsi_weight:  0.30
+  macd_weight: 0.25
+  min_score_buy:        65    # minimum composite score to qualify as BUY
+  min_score_strong_buy: 80    # STRONG_BUY threshold
+
+timeframes:
+  - "15m"
+  - "1h"
+  - "4h"
+  - "1d"
+  weights:
+    "15m": 0.10
+    "1h":  0.20
+    "4h":  0.35
+    "1d":  0.35
+
+scout:
+  top_n_symbols:  50
+  min_composite_score: 60
+  top_n_results:  10
+  scan_interval_sec: 300
+
+oco:
+  tp1_atr_mult:  1.5
+  tp2_atr_mult:  2.5
+  sl_atr_mult:   1.0
+  trail_atr_mult: 1.0
+  qty_tp1: 0.40
+  qty_tp2: 0.40
+  qty_tp3: 0.20
