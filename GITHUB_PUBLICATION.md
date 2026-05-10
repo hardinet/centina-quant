@@ -24,7 +24,7 @@ Sans GitHub CLI:
 3. Lancer:
 
 ```powershell
-git remote add origin https://github.com/VOTRE-COMPTE/centina-quant-portfolio.git
+git remote add origin https://github.com/hardinet/centina-quant-portfolio.git
 git branch -M main
 git push -u origin main
 ```
@@ -43,7 +43,7 @@ Dans GitHub:
 La page publique ressemblera a:
 
 ```text
-https://VOTRE-COMPTE.github.io/centina-quant-portfolio/
+https://hardinet.github.io/centina-quant-portfolio/
 ```
 
 ## 3. Verifier avant partage
