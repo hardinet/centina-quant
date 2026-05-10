@@ -1,0 +1,59 @@
+name: Daily Web Knowledge Update
+
+on:
+  schedule:
+    - cron: "30 5 * * *"    # 05:30 UTC daily
+  workflow_dispatch:
+
+jobs:
+  web-learn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run web knowledge seeker
+        run: |
+          python -c "
+          import asyncio, sys
+          sys.path.insert(0, 'src')
+          from brain.web_knowledge_seeker import WebKnowledgeSeeker
+
+          async def run():
+              seeker = WebKnowledgeSeeker()
+              queries = [
+                  'best crypto trading strategy 2024',
+                  'bitcoin EMA crossover backtest results',
+                  'altcoin RSI momentum strategy',
+              ]
+              for q in queries:
+                  try:
+                      results = await seeker.search_and_learn(q)
+                      print(f'Query: {q} — {len(results)} results')
+                  except Exception as e:
+                      print(f'Query failed: {e}')
+
+          asyncio.run(run())
+          "
+        continue-on-error: true
+
+      - name: Summarize learned strategies
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'src')
+          from brain.web_knowledge_seeker import WebKnowledgeSeeker
+          seeker = WebKnowledgeSeeker()
+          stats = seeker.get_stats()
+          print('Web knowledge DB:', stats)
+          "
+        continue-on-error: true

@@ -3,7 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CENTINA v5.0</title>
+    <meta
+      name="description"
+      content="CENTINA OMNI-QUANT v5.0 - dashboard de trading quantitatif crypto en mode paper, advisor et auto."
+    />
+    <title>CENTINA OMNI-QUANT v5.0</title>
     <link rel="stylesheet" href="/assets/styles.css" />
   </head>
   <body>
@@ -17,7 +21,10 @@
           </div>
         </div>
 
-        <div id="network-badge" class="network-badge testnet">TESTNET</div>
+        <div class="sidebar-meta">
+          <div id="network-badge" class="network-badge testnet">TESTNET</div>
+          <span>Paper-first risk engine</span>
+        </div>
 
         <nav class="nav">
           <button class="nav-item active" data-page="live">Live</button>
@@ -49,6 +56,12 @@
           <strong id="health">...</strong>
           <span id="binance-status" class="binance-off">Binance: -</span>
         </section>
+
+        <section class="author-card">
+          <span>Projet GitHub</span>
+          <strong>Auteur unique</strong>
+          <small>ardin etienne.</small>
+        </section>
       </aside>
 
       <main class="main">
@@ -58,6 +71,7 @@
             <p id="subtitle">Etat temps reel de l'agent et du bridge.</p>
           </div>
           <div class="topbar-actions">
+            <div class="live-pill"><span></span>Sync 5s</div>
             <button data-command="FORCE_SCAN">Forcer scan</button>
             <button data-command="RUN_BACKTEST" data-days="30">Backtest 30j</button>
             <button data-command="RUN_SIMULATION">Simulation</button>
@@ -65,7 +79,7 @@
         </header>
 
         <section class="metrics-grid">
-          <article class="metric">
+          <article class="metric accent">
             <span>Solde Binance USDT</span>
             <strong id="metric-binance">- USDT</strong>
           </article>
@@ -107,12 +121,12 @@
             </article>
           </div>
           <article class="panel">
-            <div class="panel-head"><h2>Positions ouvertes (agent)</h2></div>
+            <div class="panel-head"><h2>Positions ouvertes</h2></div>
             <div class="table-wrap"><table id="positions-table"></table></div>
           </article>
           <article class="panel">
             <div class="panel-head">
-              <h2>Ordres ouverts Binance</h2>
+              <h2>Ordres Binance</h2>
               <button id="refresh-orders" style="font-size:12px;padding:5px 10px;">Actualiser</button>
             </div>
             <div class="table-wrap"><table id="orders-table"></table></div>

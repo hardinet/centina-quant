@@ -1,0 +1,154 @@
+{
+  "name": "CENTINA – News Sentinel",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 5 }] }
+      },
+      "id": "node-schedule",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "https://api.coingecko.com/api/v3/news",
+        "options": { "timeout": 10000 }
+      },
+      "id": "node-coingecko",
+      "name": "Fetch CoinGecko News",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [200, 0]
+    },
+    {
+      "parameters": {
+        "url": "https://min-api.cryptocompare.com/data/v2/news/?lang=EN",
+        "options": { "timeout": 10000 }
+      },
+      "id": "node-cryptocompare",
+      "name": "Fetch CryptoCompare News",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [200, 120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const BULLISH_KEYWORDS = [\n  'rally', 'breakout', 'surge', 'bull', 'ath', 'all-time high',\n  'partnership', 'listing', 'upgrade', 'adoption', 'etf approval',\n  'institutional', 'buy'\n];\nconst BEARISH_KEYWORDS = [\n  'hack', 'exploit', 'ban', 'lawsuit', 'sec', 'crash', 'dump',\n  'bankrupt', 'fraud', 'rug', 'delisting', 'restrict'\n];\nconst CRYPTO_SYMBOLS = [\n  'BTC','ETH','BNB','SOL','ADA','XRP','DOT','MATIC','AVAX','LINK',\n  'UNI','ATOM','LTC','NEAR','FTM','APT','ARB','OP','INJ','TIA'\n];\n\nconst results = [];\nconst allItems = $input.all();\n\nfor (const item of allItems) {\n  const articles = item.json.Data || item.json.news || item.json || [];\n  const list = Array.isArray(articles) ? articles : [];\n  \n  for (const article of list.slice(0, 20)) {\n    const text = ((article.title || '') + ' ' + (article.body || '') + ' ' + (article.headline || '')).toLowerCase();\n    \n    let sentiment = 0;\n    for (const kw of BULLISH_KEYWORDS) { if (text.includes(kw)) sentiment += 0.1; }\n    for (const kw of BEARISH_KEYWORDS) { if (text.includes(kw)) sentiment -= 0.15; }\n    sentiment = Math.max(-1, Math.min(1, sentiment));\n    \n    const affectedSymbols = CRYPTO_SYMBOLS.filter(s => text.includes(s.toLowerCase()));\n    \n    if (Math.abs(sentiment) >= 0.2) {\n      results.push({\n        json: {\n          source: article.source_info?.name || article.source || 'unknown',\n          headline: article.title || article.headline || '',\n          sentiment: Math.round(sentiment * 100) / 100,\n          symbols: affectedSymbols,\n          urgency: Math.abs(sentiment) >= 0.5 ? 'high' : 'normal',\n          url: article.url || article.guid || '',\n          published_at: article.published_on || article.publishedAt || new Date().toISOString()\n        }\n      });\n    }\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { skip: true } }];"
+      },
+      "id": "node-analyze",
+      "name": "Analyze Sentiment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 60]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "cond-skip",
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "notEquals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "node-filter",
+      "name": "Filter Significant News",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [640, 60]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nreturn items.map(item => ({\n  json: {\n    source: item.json.source,\n    symbol: item.json.symbols && item.json.symbols.length > 0 ? item.json.symbols[0] + 'USDT' : null,\n    headline: item.json.headline,\n    sentiment: item.json.sentiment,\n    urgency: item.json.urgency,\n    raw_url: item.json.url\n  }\n}));"
+      },
+      "id": "node-format",
+      "name": "Format for CENTINA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [840, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CENTINA_WEBHOOK_URL || 'http://centina:8080/webhook/news' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "x-centina-secret", "value": "={{ $env.N8N_WEBHOOK_SECRET || '' }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": { "timeout": 5000 }
+      },
+      "id": "node-webhook",
+      "name": "Send to CENTINA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1040, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.TELEGRAM_WEBHOOK_URL || '' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Content-Type", "value": "application/json" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: '📰 ' + $json.urgency.toUpperCase() + ' | ' + $json.headline + ' | sentiment=' + $json.sentiment }) }}",
+        "options": { "timeout": 5000 },
+        "continueOnFail": true
+      },
+      "id": "node-telegram",
+      "name": "Notify Telegram (High Urgency)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1040, 120]
+    }
+  ],
+  "connections": {
+    "Every 5 Minutes": {
+      "main": [[
+        { "node": "Fetch CoinGecko News",      "type": "main", "index": 0 },
+        { "node": "Fetch CryptoCompare News",   "type": "main", "index": 0 }
+      ]]
+    },
+    "Fetch CoinGecko News":    { "main": [[{ "node": "Analyze Sentiment", "type": "main", "index": 0 }]] },
+    "Fetch CryptoCompare News":{ "main": [[{ "node": "Analyze Sentiment", "type": "main", "index": 0 }]] },
+    "Analyze Sentiment":       { "main": [[{ "node": "Filter Significant News", "type": "main", "index": 0 }]] },
+    "Filter Significant News": {
+      "main": [
+        [{ "node": "Format for CENTINA", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Format for CENTINA":      {
+      "main": [[
+        { "node": "Send to CENTINA",             "type": "main", "index": 0 },
+        { "node": "Notify Telegram (High Urgency)", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "tags": ["centina", "news", "trading"],
+  "meta": {
+    "instanceId": "centina-news-sentinel-v1"
+  }
+}

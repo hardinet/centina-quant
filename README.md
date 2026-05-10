@@ -2,6 +2,21 @@
 
 Agent de trading crypto Binance USDT en mode paper, advisor, semi-auto ou auto.
 
+## Portfolio Recruteur
+
+Auteur unique: ardin etienne.
+
+Ce depot est prepare pour etre partage comme projet portfolio:
+
+- Vitrine statique GitHub Pages: `docs/index.html`
+- Interface web moderne: `dashboard/web/`
+- API dashboard FastAPI: `dashboard/server.py`
+- Tests unitaires: `python -m pytest tests/unit -q`
+- CI GitHub: `.github/workflows/ci.yml`
+- Guide de publication du second depot: `GITHUB_PUBLICATION.md`
+
+Le projet est une demonstration technique et ne constitue pas un conseil financier.
+
 Le projet a maintenant une route officielle simple:
 
 - Lanceur complet: `python scripts/start.py --mode PAPER`

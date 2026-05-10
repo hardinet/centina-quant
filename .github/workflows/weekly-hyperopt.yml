@@ -1,0 +1,68 @@
+name: Weekly Hyperoptimization
+
+on:
+  schedule:
+    - cron: "0 2 * * 0"    # Sunday 02:00 UTC
+  workflow_dispatch:
+
+jobs:
+  hyperopt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Optuna hyperoptimization
+        env:
+          BINANCE_API_KEY:    ${{ secrets.BINANCE_API_KEY }}
+          BINANCE_SECRET_KEY: ${{ secrets.BINANCE_SECRET_KEY }}
+        run: |
+          python -c "
+          import asyncio, sys
+          sys.path.insert(0, 'src')
+          from learning.hyperoptimizer import HyperOptimizer
+          from historical_simulation.synthetic.synthetic_data_generator import (
+              SyntheticDataGenerator, SyntheticConfig
+          )
+          gen = SyntheticDataGenerator()
+          df  = gen.generate(SyntheticConfig(n_days=730))
+          opt = HyperOptimizer()
+          result = opt.optimize(df, 'BTCUSDT', n_trials=200)
+          print('Best Sharpe:', result.best_sharpe)
+          print('Best Params:', result.best_params)
+          "
+
+      - name: Walk-forward validation
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'src')
+          from historical_simulation.backtest.walk_forward_optimizer import WalkForwardOptimizer
+          from historical_simulation.synthetic.synthetic_data_generator import (
+              SyntheticDataGenerator, SyntheticConfig
+          )
+          gen = SyntheticDataGenerator()
+          df  = gen.generate(SyntheticConfig(n_days=1095))
+          wf  = WalkForwardOptimizer()
+          r   = wf.run(df, 'BTCUSDT', method='rolling', n_folds=6)
+          print(f'WF Efficiency: {r.efficiency_ratio:.0%}')
+          print(f'Recommended: {r.recommended_params}')
+          "
+
+      - name: Upload optimization results
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperopt-${{ github.run_number }}
+          path: |
+            data/optimised_params.json
+            reports/
+          retention-days: 90

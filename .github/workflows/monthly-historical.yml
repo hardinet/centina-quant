@@ -1,0 +1,66 @@
+name: Monthly Full Historical Simulation
+
+on:
+  schedule:
+    - cron: "0 1 1 * *"    # 1st of each month at 01:00 UTC
+  workflow_dispatch:
+    inputs:
+      symbol:
+        description: "Trading pair"
+        default: "BTCUSDT"
+      years:
+        description: "Years of history"
+        default: "10"
+
+jobs:
+  full-sim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run full historical simulation
+        env:
+          BINANCE_API_KEY:    ${{ secrets.BINANCE_API_KEY }}
+          BINANCE_SECRET_KEY: ${{ secrets.BINANCE_SECRET_KEY }}
+          FRED_API_KEY:       ${{ secrets.FRED_API_KEY }}
+          GLASSNODE_API_KEY:  ${{ secrets.GLASSNODE_API_KEY }}
+        run: |
+          SYMBOL="${{ github.event.inputs.symbol || 'BTCUSDT' }}"
+          YEARS="${{ github.event.inputs.years || '10' }}"
+          echo "Running simulation: $SYMBOL / $YEARS years"
+          python scripts/run_historical_simulation.py \
+            --symbol $SYMBOL --strategy all --years $YEARS
+
+      - name: Run for ETH
+        env:
+          BINANCE_API_KEY:    ${{ secrets.BINANCE_API_KEY }}
+          BINANCE_SECRET_KEY: ${{ secrets.BINANCE_SECRET_KEY }}
+        run: |
+          python scripts/run_historical_simulation.py \
+            --symbol ETHUSDT --strategy all --years 5
+        continue-on-error: true
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: monthly-simulation-${{ github.run_number }}
+          path: reports/historical/
+          retention-days: 365
+
+      - name: Create GitHub release summary
+        run: |
+          echo "## Monthly Historical Simulation Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- Symbols: BTCUSDT, ETHUSDT" >> $GITHUB_STEP_SUMMARY
+          echo "- Strategies: A, B, C, D, E" >> $GITHUB_STEP_SUMMARY
+          echo "- Reports: see artifacts" >> $GITHUB_STEP_SUMMARY

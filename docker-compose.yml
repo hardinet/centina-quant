@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+
+  centina:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: centina
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+    depends_on:
+      - redis
+    networks:
+      - centina-net
+    command: python -m src.main --mode ${DEFAULT_MODE:-ADVISOR}
+
+  redis:
+    image: redis:7-alpine
+    container_name: centina-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - centina-net
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: centina-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme}
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-http://localhost:5678}
+      - DB_TYPE=sqlite
+      - DB_SQLITE_DATABASE=/home/node/.n8n/database.sqlite
+    volumes:
+      - n8n-data:/home/node/.n8n
+    networks:
+      - centina-net
+
+volumes:
+  redis-data:
+  n8n-data:
+
+networks:
+  centina-net:
+    driver: bridge
